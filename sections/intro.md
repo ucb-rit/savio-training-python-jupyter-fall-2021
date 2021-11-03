@@ -1,6 +1,6 @@
 class: center, middle
 
-# Using Python & Jupyter on Savio
+# Using Python & Jupyter Notebooks on Savio
 
 ---
 

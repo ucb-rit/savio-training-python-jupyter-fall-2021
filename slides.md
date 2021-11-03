@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Python & Jupyter on Savio</title>
+        <title>Python & Jupyter Notebooks on Savio</title>
         <meta charset="utf-8">
         <style>
          @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
@@ -21,7 +21,7 @@
     <body>
         <textarea id="source">
 [%- ELSE -%]
-% Python & Jupyter on Savio
+% Python & Jupyter Notebooks on Savio
 % November 15, 2021
 % Authors
 [% END %]

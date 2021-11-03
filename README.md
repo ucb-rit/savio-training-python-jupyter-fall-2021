@@ -1,6 +1,8 @@
 # savio-training-python-jupyter-fall-2021
 
-Materials for Python & Jupyter on Savio training for November 15, 2021.
+Materials for "Python & Jupyter Notebooks on Savio" training on November 15, 2021.
+
+This is an intermediate training session on using Python and Jupyter Notebooks on Savio, the UC Berkeley campus Linux high-performance computing cluster. We will give an overview and best practices of Python environment and package management using pip and conda, using and debugging Jupyter Notebooks on Savio via Open On Demand, creating custom Jupyter Notebook kernels, and basic parallelization strategies in Python (ipyparallel, Dask, and Ray), with examples on the command line and using Jupyter Notebooks.
 
 The main document is `slides.html` (or `slides_onepage.html` if you prefer a version that appears in one long HTML page rather than in slide format).
 
