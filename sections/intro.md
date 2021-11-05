@@ -7,6 +7,7 @@ class: center, middle
 # Outline
 
 - Python package management on the cluster
+
   - Pros and cons of pip and conda
   - Best practices when using virtual environments
 

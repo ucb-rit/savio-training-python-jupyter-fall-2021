@@ -1,18 +1,148 @@
-class: center, middle
+# Python on Savio
 
-# Conda!
-
----
-# First slide
-Blabla
-
----
+First step, load in Python:
 
 ```sh
-[% INCLUDE job.sh %]
+# loads latest version on system 3.7
+module load python
+
+# or load specific version
+module load python/3.6 #
+```
+--
+To see what versions are available on the system:
+
+```sh
+[jpduncan@ln002 ~]$ module avail python
+
+-------------------- /global/software/sl-7.x86_64/modfiles/langs ---------------------
+python/2.7 python/3.5 python/3.6 python/3.7
+
+----------------- /global/home/groups/consultsw/sl-7.x86_64/modfiles -----------------
+python/3.5-consultsw
+
+------------ /clusterfs/vector/home/groups/software/sl-7.x86_64/modfiles -------------
+python/2.7.14       python-igraph/0.7.0
+```
+
+---
+
+# Don't forget... 
+
+...to `module load python`.
+
+.red[IMPORTANT:] If you forget you will still have a default version available (but no `pip` or `conda`):
+
+```sh
+[jpduncan@ln002 ~]$ which python
+/usr/bin/python
+
+[jpduncan@ln002 ~]$ python --version
+Python 2.7.5
+
+[jpduncan@ln002 ~]$ which {pip,conda}
+/usr/bin/which: no pip in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
+/usr/bin/which: no conda in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
 ```
 ---
 
+# System Python Packages
+
+Run `conda list` to see what packages are already available.
+
+```sh
+[jpduncan@ln001 ~]$ conda list | head
+# packages in environment at /global/software/sl-7.x86_64/modules/langs/python/3.7:
+#
+# Name                    Version                   Build  Channel
+_anaconda_depends         2019.03                  py37_0    anaconda
+_ipyw_jlab_nb_ext_conf    0.1.0                    py37_0  
+_libgcc_mutex             0.1                        main  
+alabaster                 0.7.12                   py37_0  
+anaconda                  custom                   py37_1  
+anaconda-client           1.7.2                    py37_0  
+anaconda-navigator        1.9.7                    py37_0
 ```
-[% INCLUDE parallel.py %]
+
+Includes many common packages and their dependencies, such as:
+- **Package management**: conda, pip
+- **Scientific computing**: numpy, scipy
+- **Visualization**: bokeh, seaborn, matplotlib
+- **Parallelization**: dask, ipyparallel
+- **Data manipulation**: pandas
+- **ML**: scikit-learn, pyspark
+- many more
+
+---
+
+# More ML packages
+
+A few machine learning packages in the module system:
+
+```sh
+[jpduncan@ln002 ~]$ module avail ml
+
+--------------------- /global/software/sl-7.x86_64/modfiles/apps ---------------------
+ml/caffe/rc5                  ml/tensorflow/1.12.0-cpu-py36
+ml/cntk/2.0.beta15-py27       ml/tensorflow/1.12.0-py36
+ml/cntk/2.0.beta15-py35       ml/tensorflow/1.7.0-py27
+ml/mxnet/0.9.3-py27           ml/tensorflow/1.7.0-py35
+ml/mxnet/0.9.3-py35           ml/tensorflow/1.7.0-py36
+ml/mxnet/0.9.3-py36           ml/tensorflow/2.0-py36
+ml/mxnet/0.9.3-r-3.2.5        ml/tensorflow/2.1.0-py37
+ml/tensorflow/1.0.0-py27      ml/tensorflow/2.3.0-py37
+ml/tensorflow/1.0.0-py35      ml/tensorflow/2.5.0-py37
+ml/tensorflow/1.0.0-py36      ml/torch/torch7
+
+[jpduncan@ln002 ~]$ module avail pytorch
+
+----------------- /global/home/groups/consultsw/sl-7.x86_64/modfiles -----------------
+pytorch/0.3.1-py3.5-cuda9.0 pytorch/0.4.0-py36-cuda9.0  pytorch/1.0.0-py36-cuda9.0
 ```
+---
+name: pip
+
+# Installing additional packages -- pip
+
+pip stands for "package installer for Python".
+
+You can use it to install packages from:
+---
+template: pip
+- PyPI -- the Python Package Index
+```sh
+# --user to install in ~/.local
+# --upgrade to get newer version of package than already installed
+pip install --user --upgrade scikit-learn
+```
+---
+template: pip
+count: false
+- PyPI -- the Python Package Index
+- Version control systems such as `git`
+```sh
+git 
+```
+---
+template: pip
+count: false
+- PyPI -- the Python Package Index
+- Version control systems such as `git`
+- Local project directories
+```sh
+Local project directories
+```
+---
+template: pip
+count: false
+- PyPI -- the Python Package Index
+- Version control systems such as `git`
+- Local project directories
+- Local or remote source archives
+```sh
+Local or remote source archives
+```
+--
+
+.red[WARNING:] `conda list` won't show the packages installed via the default
+version of pip that is available after `module load python`.

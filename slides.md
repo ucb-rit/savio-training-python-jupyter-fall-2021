@@ -1,4 +1,3 @@
-[%- IF mode == 'remark' -%]
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,18 +15,14 @@
          }
          .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
          .remark-slide-scaler { overflow-y: auto; }
+         .red { color: red; }
         </style>
     </head>
     <body>
         <textarea id="source">
-[%- ELSE -%]
-% Python & Jupyter Notebooks on Savio
-% November 15, 2021
-% Authors
-[% END %]
 [%- INCLUDE "sections/intro.md" %]
 [%- INCLUDE "sections/pip-conda.md" %]
-[% IF mode == 'remark' %]
+[%- INCLUDE "sections/jupyter.md" %]
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
         </script>
@@ -41,4 +36,3 @@
         </script>
     </body>
 </html>
-[% END %]

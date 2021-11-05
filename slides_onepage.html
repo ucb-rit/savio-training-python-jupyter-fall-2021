@@ -1,197 +1,237 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="author" content="November 15, 2021" />
-  <title>Python &amp; Jupyter on Savio</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
-}
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {  }
-@media screen {
-a.sourceLine::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
-</head>
-<body>
-<header id="title-block-header">
-<h1 class="title">Python &amp; Jupyter on Savio</h1>
-<p class="author">November 15, 2021</p>
-<p class="date">Authors</p>
-</header>
-<p>class: center, middle</p>
-<h1 id="using-python-jupyter-on-savio">Using Python &amp; Jupyter on Savio</h1>
-<hr />
-<h1 id="outline">Outline</h1>
-<ul>
-<li>Python package management on the cluster
-<ul>
-<li>Pros and cons of pip and conda</li>
-<li>Best practices when using virtual environments</li>
-</ul></li>
-</ul>
-<p>–</p>
-<ul>
-<li>Using Jupyter notebooks via Open OnDemand
-<ul>
-<li>Creating your own Jupyter kernels from a conda env</li>
-<li>Modifying the kernel to use the module system</li>
-<li>Monitoring and debugging OOD jobs</li>
-</ul></li>
-</ul>
-<p>–</p>
-<ul>
-<li>Basic parallelization strategies in Python
-<ul>
-<li>ipyparallel</li>
-<li>Dask</li>
-<li>Ray</li>
-<li>Parallel processing in Jupyter notebooks</li>
-</ul></li>
-</ul>
-<hr />
-<pre><code>@requires_authorization(roles=[&quot;ADMIN&quot;])
-def somefunc(param1=&#39;&#39;, param2=0):
-    r&#39;&#39;&#39;A docstring&#39;&#39;&#39;
-    if param1 &gt; param2: # interesting
-        print &#39;Gre\&#39;ater&#39;
+<html>
+    <head>
+        <title>Python & Jupyter Notebooks on Savio</title>
+        <meta charset="utf-8">
+        <style>
+         @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+         @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+         @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+         body { font-family: 'Droid Serif'; }
+         h1, h2, h3 {
+             font-family: 'Yanone Kaffeesatz';
+             font-weight: normal;
+         }
+         .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+         .remark-slide-scaler { overflow-y: auto; }
+         .red { color: red; }
+        </style>
+    </head>
+    <body>
+        <textarea id="source">
+
+# Using Python & Jupyter Notebooks on Savio
+
+
+
+# Outline
+
+- Python package management on the cluster
+
+  - Pros and cons of pip and conda
+  - Best practices when using virtual environments
+
+
+
+- Using Jupyter notebooks via Open OnDemand
+  - Creating your own Jupyter kernels from a conda env
+  - Modifying the kernel to use the module system
+  - Monitoring and debugging OOD jobs
+
+
+
+- Basic parallelization strategies in Python
+  - ipyparallel
+  - Dask
+  - Ray
+  - Parallel processing in Jupyter notebooks
+
+
+
+```
+@requires_authorization(roles=["ADMIN"])
+def somefunc(param1='', param2=0):
+    r'''A docstring'''
+    if param1 > param2: # interesting
+        print 'Gre\'ater'
     return (param2 - param1 + 1 + 0b10l) or None
 
 class SomeClass:
     pass
 
-&gt;&gt;&gt; message = &#39;&#39;&#39;interpreter
-... prompt&#39;&#39;&#39;</code></pre>
-<h1 id="introduction">Introduction</h1>
-<p>We’ll do this mostly as a demonstration. We encourage you to login to your account and try out the various examples yourself as we go through them.</p>
-<p>Much of this material is based on the extensive Savio documention we have prepared and continue to prepare, available at <a href="https://docs-research-it.berkeley.edu/services/high-performance-computing/">https://docs-research-it.berkeley.edu/services/high-performance-computing/</a>.</p>
-<p>The materials for this tutorial are available using git at the short URL (<a href="https://tinyurl.com/brc-oct21">tinyurl.com/brc-oct21</a>), the GitHub URL (<a href="https://github.com/ucb-rit/savio-training-intro-fall-2021">https://github.com/ucb-rit/savio-training-intro-fall-2021</a>), or simply as a <a href="https://github.com/ucb-rit/savio-training-intro-fall-2021/archive/main.zip">zip file</a>.</p>
-<h1 id="first-slide">First slide</h1>
-<p>Blabla</p>
-<hr />
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">#!/bin/bash</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># Job name:</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#SBATCH --job-name=test</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co"># Account:</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#SBATCH --account=fc_paciorek</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co"># Partition:</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#SBATCH --partition=savio2</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co"># Wall clock limit (5 minutes here):</span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#SBATCH --time=00:05:00</span></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co">#</span></a>
-<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">## Command(s) to run:</span></a>
-<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="ex">module</span> load python/3.7</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17"><span class="ex">python</span> calc.py <span class="op">&gt;</span><span class="kw">&amp;</span> <span class="ex">calc.out</span></a></code></pre></div>
-<hr />
-<pre><code>from ipyparallel import Client
-c = Client()
-c.ids
+>>> message = '''interpreter
+... prompt'''
+```
 
-dview = c[:]
-dview.block = True
-dview.apply(lambda : &quot;Hello, World&quot;)
+# Introduction
 
-lview = c.load_balanced_view()
-lview.block = True
+We'll do this mostly as a demonstration. We encourage you to login to your account and try out the various examples yourself as we go through them.
 
-import pandas
-dat = pandas.read_csv(&#39;bayArea.csv&#39;, header = None, encoding = &#39;latin1&#39;)
-dat.columns = (&#39;Year&#39;,&#39;Month&#39;,&#39;DayofMonth&#39;,&#39;DayOfWeek&#39;,&#39;DepTime&#39;,&#39;CRSDepTime&#39;,&#39;ArrTime&#39;,&#39;CRSArrTime&#39;,&#39;UniqueCarrier&#39;,&#39;FlightNum&#39;,&#39;TailNum&#39;,&#39;ActualElapsedTime&#39;,&#39;CRSElapsedTime&#39;,&#39;AirTime&#39;,&#39;ArrDelay&#39;,&#39;DepDelay&#39;,&#39;Origin&#39;,&#39;Dest&#39;,&#39;Distance&#39;,&#39;TaxiIn&#39;,&#39;TaxiOut&#39;,&#39;Cancelled&#39;,&#39;CancellationCode&#39;,&#39;Diverted&#39;,&#39;CarrierDelay&#39;,&#39;WeatherDelay&#39;,&#39;NASDelay&#39;,&#39;SecurityDelay&#39;,&#39;LateAircraftDelay&#39;)
+Much of this material is based on the extensive Savio documention we have prepared and continue to prepare, available at [https://docs-research-it.berkeley.edu/services/high-performance-computing/](https://docs-research-it.berkeley.edu/services/high-performance-computing/).
 
-dview.execute(&#39;import statsmodels.api as sm&#39;)
+The materials for this tutorial are available using git at the short URL ([tinyurl.com/brc-oct21](https://tinyurl.com/brc-oct21)), the  GitHub URL ([https://github.com/ucb-rit/savio-training-intro-fall-2021](https://github.com/ucb-rit/savio-training-intro-fall-2021)), or simply as a [zip file](https://github.com/ucb-rit/savio-training-intro-fall-2021/archive/main.zip).
 
-dat2 = dat.loc[:, (&#39;DepDelay&#39;,&#39;Year&#39;,&#39;Dest&#39;,&#39;Origin&#39;)]
-dests = dat2.Dest.unique()
 
-mydict = dict(dat2 = dat2, dests = dests)
-dview.push(mydict)
+# Python on Savio
 
-def f(id):
-    sub = dat2.loc[dat2.Dest == dests[id],:]
-    sub = sm.add_constant(sub)
-    model = sm.OLS(sub.DepDelay, sub.loc[:,(&#39;const&#39;,&#39;Year&#39;)])
-    results = model.fit()
-    return results.params
+First step, load in Python:
 
-import time
-time.time()
-parallel_result = lview.map(f, range(len(dests)))
-#result = map(f, range(len(dests))) #
-time.time()
+```sh
+# loads latest version on system 3.7
+module load python
 
-# some NaN values because all &#39;Year&#39; values are the same for some destinations
+# or load specific version
+module load python/3.6 #
+```
 
-parallel_result
-</code></pre>
-</body>
+To see what versions are available on the system:
+
+```sh
+[jpduncan@ln002 ~]$ module avail python
+
+ /global/software/sl-7.x86_64/modfiles/langs 
+python/2.7 python/3.5 python/3.6 python/3.7
+
+ /global/home/groups/consultsw/sl-7.x86_64/modfiles 
+python/3.5-consultsw
+
+ /clusterfs/vector/home/groups/software/sl-7.x86_64/modfiles -
+python/2.7.14       python-igraph/0.7.0
+```
+
+
+
+# Don't forget... 
+
+...to `module load python`.
+
+.red[IMPORTANT:] If you forget you will still have a default version available (but no `pip` or `conda`):
+
+```sh
+[jpduncan@ln002 ~]$ which python
+/usr/bin/python
+
+[jpduncan@ln002 ~]$ python version
+Python 2.7.5
+
+[jpduncan@ln002 ~]$ which {pip,conda}
+/usr/bin/which: no pip in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
+/usr/bin/which: no conda in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
+```
+
+
+# System Python Packages
+
+Run `conda list` to see what packages are already available.
+
+```sh
+[jpduncan@ln001 ~]$ conda list | head
+# packages in environment at /global/software/sl-7.x86_64/modules/langs/python/3.7:
+#
+# Name                    Version                   Build  Channel
+_anaconda_depends         2019.03                  py37_0    anaconda
+_ipyw_jlab_nb_ext_conf    0.1.0                    py37_0  
+_libgcc_mutex             0.1                        main  
+alabaster                 0.7.12                   py37_0  
+anaconda                  custom                   py37_1  
+anaconda-client           1.7.2                    py37_0  
+anaconda-navigator        1.9.7                    py37_0
+```
+
+Includes many common packages and their dependencies, such as:
+- **Package management**: conda, pip
+- **Scientific computing**: numpy, scipy
+- **Visualization**: bokeh, seaborn, matplotlib
+- **Parallelization**: dask, ipyparallel
+- **Data manipulation**: pandas
+- **ML**: scikit-learn, pyspark
+- many more
+
+
+
+# More ML packages
+
+A few machine learning packages in the module system:
+
+```sh
+[jpduncan@ln002 ~]$ module avail ml
+
+ /global/software/sl-7.x86_64/modfiles/apps 
+ml/caffe/rc5                  ml/tensorflow/1.12.0-cpu-py36
+ml/cntk/2.0.beta15-py27       ml/tensorflow/1.12.0-py36
+ml/cntk/2.0.beta15-py35       ml/tensorflow/1.7.0-py27
+ml/mxnet/0.9.3-py27           ml/tensorflow/1.7.0-py35
+ml/mxnet/0.9.3-py35           ml/tensorflow/1.7.0-py36
+ml/mxnet/0.9.3-py36           ml/tensorflow/2.0-py36
+ml/mxnet/0.9.3-r-3.2.5        ml/tensorflow/2.1.0-py37
+ml/tensorflow/1.0.0-py27      ml/tensorflow/2.3.0-py37
+ml/tensorflow/1.0.0-py35      ml/tensorflow/2.5.0-py37
+ml/tensorflow/1.0.0-py36      ml/torch/torch7
+
+[jpduncan@ln002 ~]$ module avail pytorch
+
+ /global/home/groups/consultsw/sl-7.x86_64/modfiles 
+pytorch/0.3.1-py3.5-cuda9.0 pytorch/0.4.0-py36-cuda9.0  pytorch/1.0.0-py36-cuda9.0
+```
+
+
+
+# Installing additional packages  pip
+
+pip stands for "package installer for Python".
+
+You can use it to install packages from:
+
+
+- PyPI  the Python Package Index
+```sh
+# user to install in ~/.local
+# upgrade to get newer version of package than already installed
+pip install user upgrade scikit-learn
+```
+
+
+
+- PyPI  the Python Package Index
+- Version control systems such as `git`
+```sh
+git 
+```
+
+
+
+- PyPI  the Python Package Index
+- Version control systems such as `git`
+- Local project directories
+```sh
+Local project directories
+```
+
+
+
+- PyPI  the Python Package Index
+- Version control systems such as `git`
+- Local project directories
+- Local or remote source archives
+```sh
+Local or remote source archives
+```
+
+
+.red[WARNING:] `conda list` won't show the packages installed via the default
+version of pip that is available after `module load python`.
+
+        </textarea>
+        <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+        </script>
+        <script>
+         var slideshow = remark.create({
+             countIncrementalSlides: false,
+             highlightLanguage: 'python',
+             highlightStyle: 'agate',
+             navigation: { scroll: false, },
+         });
+        </script>
+    </body>
 </html>
