@@ -452,7 +452,290 @@ See our [training on using containers on Savio](https://docs-research-it.berkele
 
 - .green[\+] Prevents I/O issues on the system
 - .green[\+] Very portable
-- .green[\-] more of a learning curve
+- .red[\-] more of a learning curve
+# Basic parallelization using ipyparallel
+
+We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine (discussed here) or across multiple machines (see the tutorial on distributed memory parallelization). 
+
+`ipyparallel` allows one to easily split up tasks that can be computed independently and send those tasks out to Python worker processes to run in parallel. The results are then collected back on the main Python process.
+
+Since the workers are separate Python processes, we need to start up those processes, either from within Python (possible as of version 7 of ipyparallel) or from the command line.
+
+# Starting workers on one node
+
+```
+## In newer versions of ipyparallel (v. 7 and later)
+import ipyparallel as ipp
+cluster = ipp.Cluster(n=4)
+cluster.start_cluster_sync()
+```
+
+```
+c = cluster.connect_client_sync()
+## Check that we have the number of workers expected:
+c.ids
+```
+
+Side note: You can also start the workers from the command line (this was required in older versions of ipyparallel, probably before version 7).
+
+```
+# in the shell
+ipcluster start -n 4
+```
+
+```
+# in python
+import ipyparallel
+c = ipp.Client()
+c.ids
+```
+
+# Testing our cluster
+
+Let's just verify that things seem set up ok and we can interact with all our workers:
+
+```
+dview = c[:]
+dview.block = True
+dview.apply(lambda : "Hello, World")
+```
+
+`dview` stands for a 'direct view', which is an interface to our cluster that allows us to "manually" send tasks to the workers.
+
+# Parallelized machine learning example
+
+Now let's see an example of how we can use our workers to run code in parallel. 
+
+We'll carry out a statistics/machine learning prediction method (random forest regression) with leave-one-out cross-validation, parallelizing over different held out data.
+
+First let's set up packages, data and our main function on the workers:
+
+```
+dview.execute('from sklearn.ensemble import RandomForestRegressor as rfr')
+dview.execute('import numpy as np')
+
+def looFit(index, Ylocal, Xlocal):
+    rf = rfr(n_estimators=100)
+    fitted = rf.fit(np.delete(Xlocal, index, axis = 0), np.delete(Ylocal, index))
+    pred = rf.predict(np.array([Xlocal[index, :]]))
+    return(pred[0])
+
+import numpy as np
+np.random.seed(0)
+n = 500
+p = 50
+X = np.random.normal(0, 1, size = (n, p))
+Y = X[: , 0] + pow(abs(X[:,1] * X[:,2]), 0.5) + X[:,1] - X[:,2] + np.random.normal(0, 1, n)
+
+mydict = dict(X = X, Y = Y, looFit = looFit)
+dview.push(mydict)
+```
+
+# Parallelized machine learning example (2)
+
+Now let's set up a "load-balanced view". With this type of interface, one submits the tasks and the controller decides how to divide up the tasks, ideally achieving good load balancing. A load-balanced computation is one that keeps all the workers busy throughout the computation
+
+```
+lview = c.load_balanced_view()
+lview.block = True
+
+# We'll leave out only 50 observations, for the sake of time
+nSub = 50
+
+# need a wrapper function because map() only operates on one argument
+def wrapper(i):
+    return(looFit(i, Y, X))
+
+# Now run the fitting, predicting on each held-out observation:
+
+import time
+time.time()
+pred = lview.map(wrapper, range(nSub))
+time.time()
+
+pred
+```
+
+
+# Using multiple nodes
+
+When using multiple nodes, we will generally start up a controller process on the first node that Slurm gives us and then use `srun` (within our running `srun` or `sbatch` session) to start up workers on the nodes.
+
+First we'll start our Slurm job using `sbatch` or `srun`.
+
+Then once the job starts (if using `srun`) or within our submission script (if using `sbatch`):
+
+```
+ipcontroller ip='*' &
+sleep 30
+
+## The next line starts one worker per SLURM task 
+## (which should equal the number of cores)
+
+srun ipengine &
+sleep 45  # wait until all engines have successfully started
+```
+
+At this point you should be able to connect to the running cluster using the syntax seen for single-node usage.
+# Using ipyparallel in a Jupyter notebook
+
+We have some [directions](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/ood/jupyter-parallelization/) on parallelization within a notebook. 
+
+This uses the `ipyparallel` package that we explored from within a simple Python command line session. 
+
+Once we've done the one-time setup, we can go to the 'IPython Clusters' tab and choose the number of workers. These workers will start on the single node our notebook is running on. 
+
+So the number of workers would generally match the number of cores you requested (e.g., on `savio2_htc`) or (ideally) the number of cores on the machine (for partitions allocated on a per node basis).
+
+**Caution**: use of the standalone OOD node (for debugging/exploration) is limited to 1 core and 2 GB memory, so that is not appropriate for parallelization, or even for working with moderately sized datasets. I've noticed that reading in a large file may cause the kernel to die without any warnings/error messages. For example this occurs for a 260 MB CSV file, even though in principle the notebook can use up to 2 GB memory...
+
+# Within the notebook
+
+We need to connect to the running cluster. 'c' gives us a "handle" object.
+
+```
+import ipyparallel as ipp
+c = ipp.Client(profile='default', cluster_id='')
+c.ids # this should show the number of workers equal to the number you requeste
+```
+
+Now we can run our random forest cross-validation. See `randomForest_cv.py`.
+
+# Multiple nodes
+
+This may be possible. Feel free to ask us and we can explore it further. 
+# Dask overview
+
+Python's Dask package provides powerful tools for parallelizing computations on a single machine or across multiple machines.
+
+In addition to providing tools that allow you to parallelize independent computations as we did with `ipyparallel`, Dask also allows you to run computations across datasets in parallel using distributed data objects.
+
+There's lots of information about Dask online, including [this tutorial](https://github.com/berkeley-scf/tutorial-dask-future) prepared by Chris Paciorek.
+
+# Distributed data in Dask
+
+The idea here is to split up large datasets into chunks (also called 'partitions' or 'shard') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
+
+Some advantages of this are:
+
+ - increasing speed by using multiple cores to process the data.
+ - when using multiple nodes, increasing the amount of total memory that can be used by having the data split across the nodes.
+ 
+ Some of the key types of distributed data objects in Dask are:
+ 
+  - distributed dataframes - each chunk is a Pandas dataframe
+  - distributed arrays - each subset of the array is a Numpy array
+  - bags - distributed lists, where each chunk contains some of the elements
+  
+# Dask's 'schedulers'
+
+Dask can set up the parallel workers in a variety of ways, which are called schedulers. Here are the options:
+
+|Type|Description|Multi-node|Copies of objects made?|
+|-||-||
+|synchronous|not in parallel|no|no|
+|threaded|threads within current Python session|no|no|
+|processes|background Python sessions|no|yes|
+|distributed|Python sessions across multiple nodes|yes or no|yes|
+
+Note that because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
+
+Here's an example of setting the 'processes' scheduler for a computation:
+
+```
+import dask.multiprocessing
+# spread work across multiple cores, one worker per core
+dask.config.set(scheduler='processes', num_workers = 4)  
+```
+
+# Dask bag example - context
+
+Let's read in a bunch of data from multiple files and put it into a Dask bag.
+
+Here's the format of the input files. They're actually tabular type data (i.e., we can think of rows as observations and columns (space separated here) as fields/variables. But in working with the data using a bag, we'll treat each row as arbitrary observation that is simply a string.
+
+Let's get a sense for the data first:
+
+```
+gzip -cd /global/scratch/users/paciorek/wikistats_small/dated/part-00000.gz | head -n 5
+```
+
+The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language.
+
+# Dask bag example - initial processing
+
+
+```
+import dask.bag as db
+wiki = db.read_text('/global/scratch/users/paciorek/wikistats_small/dated/part-0000*')
+# How many partitions (for zipped files, this will be one per file)
+wiki.npartitions
+wiki
+# dask.bag<bag-from-delayed, npartitions=10>
+
+# Count the number of elements
+
+import time
+t0 = time.time()
+wiki.count().compute()
+time.time() - t0
+
+import re
+def find(line, regex = "Obama", language = "en"):
+    vals = line.split(' ')
+    if len(vals) < 6:
+        return(False)
+    tmp = re.search(regex, vals[3])
+    if tmp is None or (language != None and vals[2] != language):
+        return(False)
+    else:
+        return(True)
+    
+# Filter to the pages related to Barack Obama and count them
+wiki.filter(find).count().compute()
+```
+
+# Lazy execution and pipelines
+
+Note that Dask executes lazily. The call to `read_text` doesn't read the data in and `wiki` is just an abstract placeholder for the actual data.
+
+Only when we run `compute()` (or a few other operations that indicate the user wants output) is the "pipeline" actually run. 
+
+Note that if you call `compute()` twice, the entire dataset will get read in twice. So it's good to combine multiple operations into a single pipeline.
+Here's an example:
+
+```
+total_cnt =wiki.count()
+obama = wiki.filter(find)
+obama_cnt = obama.count()
+(obama, obama_cnt, total_cnt) = db.compute(obama, obama_cnt, total_cnt)
+total_cnt
+obama[0:5]
+```
+
+
+
+# Extending the example
+
+Here's a pipeline where we read the data in, extract the Obama-related entries, and aggregate it to count the number of Obama-related visit for each day-hour combination.
+
+To do this, we convert the Dask bag to a Dask dataframe and then using dataframe aggregation operations (the same syntax as in Pandas).
+
+```
+def make_tuple(line):
+    return(tuple(line.split(' ')))
+
+dtypes = {'date': 'object', 'time': 'object', 'language': 'object',
+          'webpage': 'object', 'hits': 'float64', 'size': 'float64'}
+
+# df is a Dask dataframe
+df = obama.map(make_tuple).to_dataframe(dtypes)
+stats = df.groupby(['date','time']).hits.sum().compute()
+
+# stats is a Pandas object
+stats.to_csv('obama_stats.csv')
+```
+
 
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">

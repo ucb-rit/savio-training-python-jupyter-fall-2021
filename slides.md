@@ -25,6 +25,10 @@
 [%- INCLUDE "sections/intro.md" %]
 [%- INCLUDE "sections/pip-conda.md" %]
 [%- INCLUDE "sections/jupyter.md" %]
+[%- INCLUDE "sections/parallel-ipy.md" %]
+[%- INCLUDE "sections/parallel-jupyter.md" %]
+[%- INCLUDE "sections/parallel-dask.md" %]
+
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
         </script>
