@@ -16,6 +16,8 @@
          .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
          .remark-slide-scaler { overflow-y: auto; }
          .red { color: red; }
+         .green { color: green; }
+         .blue { color: blue; }
         </style>
     </head>
     <body>

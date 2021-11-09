@@ -16,6 +16,8 @@
          .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
          .remark-slide-scaler { overflow-y: auto; }
          .red { color: red; }
+         .green { color: green; }
+         .blue { color: blue; }
         </style>
     </head>
     <body>
@@ -140,12 +142,11 @@ anaconda-navigator        1.9.7                    py37_0
 ```
 
 Includes many common packages and their dependencies, such as:
-- **Package management**: conda, pip
 - **Scientific computing**: numpy, scipy
 - **Visualization**: bokeh, seaborn, matplotlib
 - **Parallelization**: dask, ipyparallel
-- **Data manipulation**: pandas
-- **ML**: scikit-learn, pyspark
+- **Data ingest/manipulation**: hdf5, pandas
+- **Data science**: pyspark, scikit-learn, statsmodels
 - many more
 
 
@@ -177,7 +178,7 @@ pytorch/0.3.1-py3.5-cuda9.0 pytorch/0.4.0-py36-cuda9.0  pytorch/1.0.0-py36-cuda9
 
 
 
-# Installing additional packages  pip
+# Installing additional packages with pip
 
 pip stands for "package installer for Python".
 
@@ -194,33 +195,264 @@ pip install user upgrade scikit-learn
 
 
 - PyPI  the Python Package Index
-- Version control systems such as `git`
+
+- Version control systems (VCS) such as `git`
 ```sh
-git 
+pip install user git+https://github.com/scikit-learn/scikit-learn
 ```
 
 
 
 - PyPI  the Python Package Index
-- Version control systems such as `git`
+
+- Version control systems (VCS) such as `git`
+
 - Local project directories
 ```sh
-Local project directories
+# -e is for "editable" installs (can also be used with VS
+# if you're familiar with setuptools, this is similar to python setup.py develop
+pip install user -e path/to/your/project
 ```
 
 
 
 - PyPI  the Python Package Index
-- Version control systems such as `git`
+
+- Version control systems (VCS) such as `git`
+
 - Local project directories
+
 - Local or remote source archives
 ```sh
-Local or remote source archives
+pip install user https://github.com/scikit-learn/scikit-learn/archive/refs/tags/1.0.1.tar.gz
+```
+
+
+
+- PyPI  the Python Package Index
+
+- Version control systems (VCS) such as `git`
+
+- Local project directories
+
+- Local or remote source archives
+
+- From a `requirements.txt` file
+```
+pip install user -r requirements.txt
 ```
 
 
 .red[WARNING:] `conda list` won't show the packages installed via the default
 version of pip that is available after `module load python`.
+
+
+# pip default user install directory
+
+By default, using `pip install user` puts package Python code, library files, and metadata into `~/.local/lib/python3.7/site-packages` (assuming Python 3.7).
+
+```sh
+[jpduncan@ln003 ~]$ pip install user upgrade scikit-learn
+[jpduncan@ln003 ~]$ ls ~/.local/lib/python3.7/site-packages/
+__pycache__		      sklearn
+scikit_learn-1.0.1.dist-info  threadpoolctl-3.0.0.dist-info
+scikit_learn.libs	      threadpoolctl.py
+```
+
+To avoid taking up too much room in your home directory, you can move this directory to scratch and create a symlink:
+```sh
+cp -pr ~/.local /global/scratch/users/$USER/.local
+rm -rf ~/.local
+ln -s /global/scratch/users/$USER/.local ~/.local
+```
+
+Alternatively, you can change this directory for your session using the environmental variable `PYTHONUSERBASE`, or permanently by setting it in `~/.bashrc`.
+
+Alternatively, you can use `target` with `pip install`, but it's more cumbersome.
+
+
+# Uninstalling packages previously installed with pip
+
+```sh
+# uninstall a single package
+pip uninstall scikit-learn
+
+# uninstall all user packages with specific prefix
+pip freeze user | grep prefix | xargs pip uninstall -y
+
+# uninstall all user packages
+pip freeze user | xargs pip uninstall -y
+```
+See https://pip.pypa.io/en/stable/ for more `pip` tricks.
+
+
+# Managing your Python environment with conda
+
+The second package manager available by default when you `module load python` is `conda`. Unlike `pip`, `conda` is also an environment manager.
+
+Create a conda environment.
+
+```sh
+# create an empty conda env called my-env
+[jpduncan@ln003 ~]$ conda create name my-env
+```
+This creates a directory `~/.conda/envs/my-env`. Activate it:
+
+```sh
+[jpduncan@ln003 ~]$ source activate my-env
+(my-env) [jpduncan@ln003 ~]$ conda install numpy # also installs Python 3.9
+(my-env) [jpduncan@ln003 ~]$ source deactivate
+DeprecationWarning: 'source deactivate' is deprecated. Use 'conda deactivate'.
+[jpduncan@ln003 ~]$
+```
+
+.red[WARNING:] You may be used to using `conda activate` to activate an environment, but this requires you to run `conda init` first which modifies your `.bashrc` in ways that can affect the behavior of your shell more generally on Savio. If you do use `conda init`, be sure to also run `conda config set auto_activate_base False`.
+
+
+# Installing additional packages with conda
+
+
+`conda` is a bit more restrictive than `pip`. There are two main ways to install packages:
+
+- From various conda "channels" such as `default` (https://anaconda.org/), `conda-forge`, `bioconda`, among others.
+
+```sh
+conda install scipy # using the default channel
+
+# -c is short for channel
+conda install -c bioconda samtools
+
+# update scipy using the conda-forge channel
+conda update scipy channel conda-forge
+```
+
+- From an archive (doesn't resolve dependencies):
+
+```sh
+# a single package
+conda install /package-path/package-filename.tar.bz2
+# many packages
+conda install /packages-path/packages-filename.tar
+```
+
+
+# Using pip within a conda env
+
+.red[WARNING]: This can cause a lot of headaches and generally isn't recommended, so avoid using pip in a conda environment unless you absolutely need to.
+
+Note that you can also use `pip` (included by default with Python>=3.4) by installing it in your conda environment.
+
+```sh
+(my-env) [jpduncan@ln002 ~]$ which pip
+~/.conda/envs/my-env/bin/pip
+(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no user
+```
+
+When you install packages using pip installed in a conda env, `conda list` shows PyPI as the source:
+
+```sh
+(my-env) [jpduncan@ln002 ~]$ conda list
+# packages in environment at /global/home/users/jpduncan/.conda/envs/my-env:
+#
+# Name                    Version                   Build  Channel
+# ...
+matplotlib                3.4.3                    pypi_0    pypi
+# ...
+```
+
+
+# Upgrading packages and rolling back conda environment changes
+
+Say you changed your environment (e.g., updated a package) and suddenly your code has errors.
+
+You can roll those changes back as follows:
+
+```sh
+conda list revisions # find the last working revision number
+conda install revision=3 # restore to revision 3
+```
+.blue[NOTE]: conda doesn't show revisions for changes made by pip, so they can't be rolled back this way.
+
+
+# Changing installation directory with conda
+
+When an environment is active, packages will install in its directory.
+
+You can also install packages to specific environments or paths without activating first:
+
+```sh
+# install to the my-env environment
+[jpduncan@ln003 ~]$ conda install name my-env scipy
+
+# create env and install packages at the same time
+[jpduncan@ln003 ~]$ conda create prefix $SCRATCH/conda/envs/scratch-env scipy
+# give full path to env to activate
+[jpduncan@ln003 ~]$ source activate $SCRATCH/conda/envs/scratch-env
+```
+
+Like `~/.local`, you can also consider moving `~/.conda` to scratch and symlinking.
+
+
+# Removing packages, removing conda environments, and cleaning up
+
+To remove a specific package in a specific environment:
+
+```sh
+conda remove scipy name my-env
+```
+
+To remove an entire environment (deactivate first):
+
+```sh
+conda remove name my-env all
+```
+
+`conda clean` helps remove unused packages and tarballs:
+
+```sh
+conda clean dry-run all
+```
+
+
+
+# pip vs conda
+
+## pip
+
+- .green[\+] can use system packages and Python
+- .green[\+] new package versions come out on PyPI first
+- .red[\-] limited to Python versions available on system
+- .red[\-] no automated dependency cleanup (`pip-autoremove` package may help)
+
+## conda
+
+- .green[\+] environments self-contained, can use any version of Python
+- .green[\+] `conda clean` helps remove unused packages
+- .green[\+] if you make a change that didn't go well, roll back
+- .red[\-] environments can become quite large on disk and/or cause I/O issues
+
+
+# Best practices for reproducibility
+
+**pip  use a requirements.txt**
+
+```sh
+pip freeze > requirements.txt
+```
+
+**conda  use an environment.yml file**
+
+```sh
+conda env export > environment.yml
+```
+
+**even better  use a container**
+
+See our [training on using containers on Savio](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-help/training-and-tutorials/#savio-introduction-to-containers-on-savio-creating-reproducible-scalable-and-portable-workflows).
+
+- .green[\+] Prevents I/O issues on the system
+- .green[\+] Very portable
+- .green[\-] more of a learning curve
 
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
