@@ -18,6 +18,13 @@
          .red { color: red; }
          .green { color: green; }
          .blue { color: blue; }
+         img { max-width: 80%; }
+         .footnote {
+         position: absolute;
+         bottom: 12px;
+         font-size: 14px;
+         max-width: 80%;
+         }
         </style>
     </head>
     <body>
@@ -28,7 +35,7 @@
 [%- INCLUDE "sections/parallel-ipy.md" %]
 [%- INCLUDE "sections/parallel-jupyter.md" %]
 [%- INCLUDE "sections/parallel-dask.md" %]
-
+[%- INCLUDE "sections/parallel-ray.md" %]
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
         </script>
