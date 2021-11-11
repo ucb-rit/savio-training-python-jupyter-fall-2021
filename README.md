@@ -16,3 +16,7 @@ Participants not familiar with operating in a UNIX-style command-line shell envi
 
 - https://swcarpentry.github.io/shell-novice
 - https://github.com/berkeley-scf/tutorial-unix-basics
+
+## Making HTML output
+
+The slides use [remark.js](https://remarkjs.com/#1) and are rendered from `slides.md` using `tpage`, part of the [Perl Template Toolkit](http://www.template-toolkit.org/). To render the HTML files, run `make`.
