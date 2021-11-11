@@ -209,7 +209,7 @@ pip freeze --user | xargs pip uninstall -y
 See https://pip.pypa.io/en/stable/ for more `pip` tricks.
 
 ---
-# Managing your Python environment with conda
+## Managing your Python environment with conda
 
 The second package manager available by default when you `module load python` is `conda`. Unlike `pip`, `conda` is also an environment manager.
 

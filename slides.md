@@ -18,7 +18,7 @@
          .red { color: red; }
          .green { color: green; }
          .blue { color: blue; }
-         img { max-width: 80%; }
+         img { max-width: 100%; }
          .footnote {
          position: absolute;
          bottom: 12px;
