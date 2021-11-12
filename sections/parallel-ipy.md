@@ -13,6 +13,7 @@ Since the workers are separate Python processes, we need to start up those proce
 ```
 ## In newer versions of ipyparallel (v. 7 and later)
 import ipyparallel as ipp
+ipp.__version__
 cluster = ipp.Cluster(n=4)
 cluster.start_cluster_sync()
 ```
@@ -45,7 +46,9 @@ Let's just verify that things seem set up ok and we can interact with all our wo
 
 ```
 dview = c[:]
-dview.block = True
+dview
+## Set blocking so that we wait for the result of the parallel execution
+dview.block = True 
 dview.apply(lambda : "Hello, World")
 ```
 
@@ -102,9 +105,7 @@ def wrapper(i):
 # Now run the fitting, predicting on each held-out observation:
 
 import time
-time.time()
 pred = lview.map(wrapper, range(nSub))
-time.time()
 
 pred
 ```
@@ -131,5 +132,7 @@ sleep 45  # wait until all engines have successfully started
 ```
 
 At this point you should be able to connect to the running cluster using the syntax seen for single-node usage.
+
+.blue[WARNING:] Be careful to set the sleep period long enough that the controller starts before trying to start the workers and the workers start before trying to connect to the workers from within Python.
 
 ---

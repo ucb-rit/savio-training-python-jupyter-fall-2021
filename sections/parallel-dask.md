@@ -62,7 +62,7 @@ Let's get a sense for the data first:
 gzip -cd /global/scratch/users/paciorek/wikistats_small/dated/part-00000.gz | head -n 5
 ```
 
-The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language.
+The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language. The fields are {day, hour, language, page, num_visits, page_size}.
 
 ---
 
@@ -93,7 +93,7 @@ def find(line, regex = "Obama", language = "en"):
         return(True)
     
 # Filter to the pages related to Barack Obama and count them
-obama = wiki.filter(find).count().compute()
+wiki.filter(find).count().compute()
 ```
 
 # Lazy execution and pipelines
@@ -131,10 +131,10 @@ dtypes = {'date': 'object', 'time': 'object', 'language': 'object',
 
 # df is a Dask dataframe
 df = obama.map(make_tuple).to_dataframe(dtypes)
-stats = df.groupby(['date','time']).hits.sum().compute()
+obama_stats = df.groupby(['date','time']).hits.sum().compute()
 
-# stats is a Pandas object
-stats.to_csv('obama_stats.csv')
+# 'obama_stats' is a Pandas object
+obama_stats.to_csv('obama_stats.csv')
 ```
 
 ---
