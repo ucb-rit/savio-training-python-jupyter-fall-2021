@@ -1,6 +1,6 @@
 # Basic parallelization using ipyparallel
 
-We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine (discussed here) or across multiple machines (see the tutorial on distributed memory parallelization). 
+We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine or across multiple machines.
 
 `ipyparallel` allows one to easily split up tasks that can be computed independently and send those tasks out to Python worker processes to run in parallel. The results are then collected back on the main Python process.
 
@@ -32,7 +32,7 @@ ipcluster start -n 4
 
 ```
 # in python
-import ipyparallel
+import ipyparallel as ipp
 c = ipp.Client()
 c.ids
 ```
@@ -49,7 +49,7 @@ dview.block = True
 dview.apply(lambda : "Hello, World")
 ```
 
-`dview` stands for a 'direct view', which is an interface to our cluster that allows us to "manually" send tasks to the workers.
+`dview` stands for a 'direct view', which is an interface to our cluster that allows us to 'manually' send tasks to the workers.
 
 ---
 

@@ -10,14 +10,16 @@ There's lots of information about Dask online, including [this tutorial](https:/
 
 # Distributed data in Dask
 
-The idea here is to split up large datasets into chunks (also called 'partitions' or 'shard') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
+The idea here is to split up large datasets into chunks (also called 'partitions' or 'shards') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
 
 Some advantages of this are:
 
  - increasing speed by using multiple cores to process the data.
  - when using multiple nodes, increasing the amount of total memory that can be used by having the data split across the nodes.
  
- Some of the key types of distributed data objects in Dask are:
+# Dask's distributed data types
+
+Some of the key types of distributed data objects in Dask are:
  
   - distributed dataframes - each chunk is a Pandas dataframe
   - distributed arrays - each subset of the array is a Numpy array
@@ -36,7 +38,7 @@ Dask can set up the parallel workers in a variety of ways, which are called sche
 |processes|background Python sessions|no|yes|
 |distributed|Python sessions across multiple nodes|yes or no|yes|
 
-Note that because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
+.blue[NOTE:] Because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
 
 Here's an example of setting the 'processes' scheduler for a computation:
 
@@ -77,10 +79,7 @@ wiki
 
 # Count the number of elements
 
-import time
-t0 = time.time()
 wiki.count().compute()
-time.time() - t0
 
 import re
 def find(line, regex = "Obama", language = "en"):
@@ -94,7 +93,7 @@ def find(line, regex = "Obama", language = "en"):
         return(True)
     
 # Filter to the pages related to Barack Obama and count them
-wiki.filter(find).count().compute()
+obama = wiki.filter(find).count().compute()
 ```
 
 # Lazy execution and pipelines
