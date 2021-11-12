@@ -10,6 +10,8 @@ So the number of workers would generally match the number of cores you requested
 
 **Caution**: use of the standalone OOD node (for debugging/exploration) is limited to 1 core and 2 GB memory, so that is not appropriate for parallelization, or even for working with moderately sized datasets. I've noticed that reading in a large file may cause the kernel to die without any warnings/error messages. For example this occurs for a 260 MB CSV file, even though in principle the notebook can use up to 2 GB memory...
 
+--- 
+
 # Within the notebook
 
 We need to connect to the running cluster. 'c' gives us a "handle" object.
@@ -25,3 +27,5 @@ Now we can run our random forest cross-validation. See `randomForest_cv.py`.
 # Multiple nodes
 
 This may be possible. Feel free to ask us and we can explore it further. 
+
+---

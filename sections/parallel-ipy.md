@@ -6,6 +6,8 @@ We'll start by using the IPython parallel package (`ipyparallel`), which allows 
 
 Since the workers are separate Python processes, we need to start up those processes, either from within Python (possible as of version 7 of ipyparallel) or from the command line.
 
+---
+
 # Starting workers on one node
 
 ```
@@ -35,6 +37,8 @@ c = ipp.Client()
 c.ids
 ```
 
+---
+
 # Testing our cluster
 
 Let's just verify that things seem set up ok and we can interact with all our workers:
@@ -46,6 +50,8 @@ dview.apply(lambda : "Hello, World")
 ```
 
 `dview` stands for a 'direct view', which is an interface to our cluster that allows us to "manually" send tasks to the workers.
+
+---
 
 # Parallelized machine learning example
 
@@ -76,6 +82,8 @@ mydict = dict(X = X, Y = Y, looFit = looFit)
 dview.push(mydict)
 ```
 
+---
+
 # Parallelized machine learning example (2)
 
 Now let's set up a "load-balanced view". With this type of interface, one submits the tasks and the controller decides how to divide up the tasks, ideally achieving good load balancing. A load-balanced computation is one that keeps all the workers busy throughout the computation
@@ -101,6 +109,7 @@ time.time()
 pred
 ```
 
+---
 
 # Using multiple nodes
 
@@ -122,3 +131,5 @@ sleep 45  # wait until all engines have successfully started
 ```
 
 At this point you should be able to connect to the running cluster using the syntax seen for single-node usage.
+
+---

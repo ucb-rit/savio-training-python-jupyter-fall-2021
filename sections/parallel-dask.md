@@ -6,6 +6,8 @@ In addition to providing tools that allow you to parallelize independent computa
 
 There's lots of information about Dask online, including [this tutorial](https://github.com/berkeley-scf/tutorial-dask-future) prepared by Chris Paciorek.
 
+---
+
 # Distributed data in Dask
 
 The idea here is to split up large datasets into chunks (also called 'partitions' or 'shard') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
@@ -20,6 +22,8 @@ Some advantages of this are:
   - distributed dataframes - each chunk is a Pandas dataframe
   - distributed arrays - each subset of the array is a Numpy array
   - bags - distributed lists, where each chunk contains some of the elements
+  
+---
   
 # Dask's 'schedulers'
 
@@ -42,6 +46,8 @@ import dask.multiprocessing
 dask.config.set(scheduler='processes', num_workers = 4)  
 ```
 
+---
+
 # Dask bag example - context
 
 Let's read in a bunch of data from multiple files and put it into a Dask bag.
@@ -55,6 +61,8 @@ gzip -cd /global/scratch/users/paciorek/wikistats_small/dated/part-00000.gz | he
 ```
 
 The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language.
+
+---
 
 # Dask bag example - initial processing
 
@@ -107,7 +115,7 @@ total_cnt
 obama[0:5]
 ```
 
-
+---
 
 # Extending the example
 
@@ -129,3 +137,5 @@ stats = df.groupby(['date','time']).hits.sum().compute()
 # stats is a Pandas object
 stats.to_csv('obama_stats.csv')
 ```
+
+---
