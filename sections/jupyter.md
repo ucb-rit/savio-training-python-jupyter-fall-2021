@@ -20,6 +20,14 @@ A Jupyter Notebook can serve as a reproducible record for your analysis.
 Let's take a quick look at Jupyter on OOD now: https://ood.brc.berkeley.edu
 
 ---
+## Recap of Jupyter notebooks via OOD
+
+- If running an OOD session via Slurm, you need to select appropriate Slurm flags, analogous to submitting jobs.
+- If running via Slurm, you can see the status of your job with squeue as with a usual Slurm job.
+- If you see that OOD is repeatedly giving you an authentication window, you need to close any other browser tabs using OOD, or go back to your previous tab.
+- Compute on shared Jupyter node for debugging/exploration is limited to 1 core and 2 GB memory.
+
+---
 # Jupyter kernels
 
 Every Jupyter Notebook uses a kernel, which provides programming language

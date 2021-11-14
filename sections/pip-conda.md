@@ -27,7 +27,7 @@ python/2.7.14       python-igraph/0.7.0
 
 ---
 
-# Don't forget... 
+## Don't forget... 
 
 ...to `module load python`.
 
@@ -44,6 +44,9 @@ Python 2.7.5
 /usr/bin/which: no pip in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
 /usr/bin/which: no conda in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
 ```
+
+.red[WARNING:] We strongly caution against using Python 2 which is no longer supported by the Python Software Foundation.
+
 ---
 
 # System Python Packages
@@ -167,7 +170,8 @@ pip install --user -r requirements.txt
 --
 
 .red[WARNING:] `conda list` won't show the packages installed via the default
-version of pip that is available after `module load python`.
+version of pip that is available after `module load python`. Use `pip list
+--user` instead.
 
 ---
 # pip default user install directory
@@ -200,12 +204,14 @@ Alternatively, you can use `--target` with `pip install`, but it's more cumberso
 # uninstall a single package
 pip uninstall scikit-learn
 
-# uninstall all user packages with specific prefix
-pip freeze --user | grep prefix | xargs pip uninstall -y
-
 # uninstall all user packages
 pip freeze --user | xargs pip uninstall -y
+
+# uninstall all user packages with specific prefix
+pip freeze --user | grep scikit- | xargs pip uninstall -y
 ```
+Sadly, `pip uninstall` does not remove package dependencies.
+
 See https://pip.pypa.io/en/stable/ for more `pip` tricks.
 
 ---
@@ -234,6 +240,7 @@ DeprecationWarning: 'source deactivate' is deprecated. Use 'conda deactivate'.
 ---
 # Installing additional packages with conda
 
+.red[WARNING]: Be sure to activate a conda environment before using `conda install`, otherwise  conda will try to put the packages in a read-only system location.
 
 `conda` is a bit more restrictive than `pip`. There are two main ways to install packages:
 
@@ -249,26 +256,28 @@ conda install -c bioconda samtools
 conda update scipy --channel conda-forge
 ```
 
-- From an archive (doesn't resolve dependencies):
-
-```sh
-# a single package
-conda install /package-path/package-filename.tar.bz2
-# many packages
-conda install /packages-path/packages-filename.tar
-```
+- Advanced: You can also install from an archive (e.g., .tar.bz2), but doing so won't resolve the package's dependencies.
 
 ---
 # Using pip within a conda env
 
-.red[WARNING]: This can cause a lot of headaches and generally isn't recommended, so avoid using pip in a conda environment unless you absolutely need to.
+.red[WARNING]: This can cause issues because conda doesn't consider pip-installed packages when installing additional packages. Avoid using pip in a conda environment unless you absolutely need to.
 
-Note that you can also use `pip` (included by default with Python>=3.4) by installing it in your conda environment.
+If you do choose to use pip with conda, follow these p[best practices](https://www.anaconda.com/blog/using-pip-in-a-conda-environment):
+
+- Use pip only after conda
+- If conda changes are needed after using pip, create new environment
+- Don't use `--user` when calling `pip install`
+- Always run pip with `--upgrade-strategy only-if-needed` (the default)
+- Experimental: Use `pip_interop_enabled` setting (see here)[https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html]
+
+<!--
+You can use `pip` by installing it in your conda environment.
 
 ```sh
 (my-env) [jpduncan@ln002 ~]$ which pip
 ~/.conda/envs/my-env/bin/pip
-(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no --user
+(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no "--user"
 ```
 
 When you install packages using pip installed in a conda env, `conda list` shows PyPI as the source:
@@ -282,6 +291,7 @@ When you install packages using pip installed in a conda env, `conda list` shows
 matplotlib                3.4.3                    pypi_0    pypi
 # ...
 ```
+-->
 
 ---
 # Upgrading packages and rolling back conda environment changes
@@ -344,15 +354,24 @@ conda clean --dry-run --all
 
 - .green[\+] can use system packages and Python
 - .green[\+] new package versions come out on PyPI first
+- .green[\+] larger number of Python packages available
+- .green[\+] more flexible package installation options
+- .green[\+] tends to be a bit faster than conda
+- .red[\-] doesn't check for simultaneous compatibility of all dependencies
 - .red[\-] limited to Python versions available on system
 - .red[\-] no automated dependency cleanup (`pip-autoremove` package may help)
+- .red[\-] Python packages only
 
 ## conda
 
 - .green[\+] environments self-contained, can use any version of Python
 - .green[\+] `conda clean` helps remove unused packages
 - .green[\+] if you make a change that didn't go well, roll back
+- .green[\+] not just Python packages
+- .green[\+] ensures that all dependencies are compatible
+- .red[\-] `conda install` tends to be slower than `pip install`
 - .red[\-] environments can become quite large on disk and/or cause I/O issues
+- .red[\-] more limited number of Python packages available
 
 ---
 # Best practices for reproducibility

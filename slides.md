@@ -25,6 +25,9 @@
          font-size: 14px;
          max-width: 80%;
          }
+         .remark-inline-code {
+         color: #4c33ff;
+         }
         </style>
     </head>
     <body>
