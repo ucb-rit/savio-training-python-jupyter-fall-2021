@@ -1,16 +1,19 @@
 # Basic parallelization using ipyparallel
 
-We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine (discussed here) or across multiple machines (see the tutorial on distributed memory parallelization). 
+We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine or across multiple machines.
 
 `ipyparallel` allows one to easily split up tasks that can be computed independently and send those tasks out to Python worker processes to run in parallel. The results are then collected back on the main Python process.
 
 Since the workers are separate Python processes, we need to start up those processes, either from within Python (possible as of version 7 of ipyparallel) or from the command line.
+
+---
 
 # Starting workers on one node
 
 ```
 ## In newer versions of ipyparallel (v. 7 and later)
 import ipyparallel as ipp
+ipp.__version__
 cluster = ipp.Cluster(n=4)
 cluster.start_cluster_sync()
 ```
@@ -30,10 +33,12 @@ ipcluster start -n 4
 
 ```
 # in python
-import ipyparallel
+import ipyparallel as ipp
 c = ipp.Client()
 c.ids
 ```
+
+---
 
 # Testing our cluster
 
@@ -41,11 +46,15 @@ Let's just verify that things seem set up ok and we can interact with all our wo
 
 ```
 dview = c[:]
-dview.block = True
+dview
+## Set blocking so that we wait for the result of the parallel execution
+dview.block = True 
 dview.apply(lambda : "Hello, World")
 ```
 
-`dview` stands for a 'direct view', which is an interface to our cluster that allows us to "manually" send tasks to the workers.
+`dview` stands for a 'direct view', which is an interface to our cluster that allows us to 'manually' send tasks to the workers.
+
+---
 
 # Parallelized machine learning example
 
@@ -76,6 +85,8 @@ mydict = dict(X = X, Y = Y, looFit = looFit)
 dview.push(mydict)
 ```
 
+---
+
 # Parallelized machine learning example (2)
 
 Now let's set up a "load-balanced view". With this type of interface, one submits the tasks and the controller decides how to divide up the tasks, ideally achieving good load balancing. A load-balanced computation is one that keeps all the workers busy throughout the computation
@@ -94,13 +105,12 @@ def wrapper(i):
 # Now run the fitting, predicting on each held-out observation:
 
 import time
-time.time()
 pred = lview.map(wrapper, range(nSub))
-time.time()
 
 pred
 ```
 
+---
 
 # Using multiple nodes
 
@@ -122,3 +132,7 @@ sleep 45  # wait until all engines have successfully started
 ```
 
 At this point you should be able to connect to the running cluster using the syntax seen for single-node usage.
+
+.blue[WARNING:] Be careful to set the sleep period long enough that the controller starts before trying to start the workers and the workers start before trying to connect to the workers from within Python.
+
+---

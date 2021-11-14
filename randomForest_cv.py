@@ -29,8 +29,9 @@ def wrapper(i):
     return(looFit(i, Y, X))
 
 import time
-time.time()
+start = time.time()
 pred = lview.map(wrapper, range(nSub))
-time.time()
+end = time.time()
+print(end - start)
 
 print(pred[0:10])

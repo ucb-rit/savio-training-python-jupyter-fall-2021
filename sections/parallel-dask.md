@@ -6,20 +6,26 @@ In addition to providing tools that allow you to parallelize independent computa
 
 There's lots of information about Dask online, including [this tutorial](https://github.com/berkeley-scf/tutorial-dask-future) prepared by Chris Paciorek.
 
+---
+
 # Distributed data in Dask
 
-The idea here is to split up large datasets into chunks (also called 'partitions' or 'shard') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
+The idea here is to split up large datasets into chunks (also called 'partitions' or 'shards') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
 
 Some advantages of this are:
 
  - increasing speed by using multiple cores to process the data.
  - when using multiple nodes, increasing the amount of total memory that can be used by having the data split across the nodes.
  
- Some of the key types of distributed data objects in Dask are:
+# Dask's distributed data types
+
+Some of the key types of distributed data objects in Dask are:
  
   - distributed dataframes - each chunk is a Pandas dataframe
   - distributed arrays - each subset of the array is a Numpy array
   - bags - distributed lists, where each chunk contains some of the elements
+  
+---
   
 # Dask's 'schedulers'
 
@@ -32,7 +38,7 @@ Dask can set up the parallel workers in a variety of ways, which are called sche
 |processes|background Python sessions|no|yes|
 |distributed|Python sessions across multiple nodes|yes or no|yes|
 
-Note that because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
+.blue[NOTE:] Because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
 
 Here's an example of setting the 'processes' scheduler for a computation:
 
@@ -41,6 +47,8 @@ import dask.multiprocessing
 # spread work across multiple cores, one worker per core
 dask.config.set(scheduler='processes', num_workers = 4)  
 ```
+
+---
 
 # Dask bag example - context
 
@@ -54,7 +62,9 @@ Let's get a sense for the data first:
 gzip -cd /global/scratch/users/paciorek/wikistats_small/dated/part-00000.gz | head -n 5
 ```
 
-The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language.
+The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language. The fields are {day, hour, language, page, num_visits, page_size}.
+
+---
 
 # Dask bag example - initial processing
 
@@ -69,10 +79,7 @@ wiki
 
 # Count the number of elements
 
-import time
-t0 = time.time()
 wiki.count().compute()
-time.time() - t0
 
 import re
 def find(line, regex = "Obama", language = "en"):
@@ -107,7 +114,7 @@ total_cnt
 obama[0:5]
 ```
 
-
+---
 
 # Extending the example
 
@@ -124,8 +131,10 @@ dtypes = {'date': 'object', 'time': 'object', 'language': 'object',
 
 # df is a Dask dataframe
 df = obama.map(make_tuple).to_dataframe(dtypes)
-stats = df.groupby(['date','time']).hits.sum().compute()
+obama_stats = df.groupby(['date','time']).hits.sum().compute()
 
-# stats is a Pandas object
-stats.to_csv('obama_stats.csv')
+# 'obama_stats' is a Pandas object
+obama_stats.to_csv('obama_stats.csv')
 ```
+
+---
