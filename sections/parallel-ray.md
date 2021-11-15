@@ -1,6 +1,11 @@
 # Overview of Ray
 Ray provides many tools for parallel computation, including remote functions (tasks) and remote classes (actors).
 
+```sh
+conda install ray-core --channel conda-forge
+pip install --user ray
+```
+
 To start Ray on a single node:
 
 ```py
