@@ -329,34 +329,17 @@ First be sure that pip is available already installed in the environment and fol
 
 --
 
-- Experimental: Use `pip_interop_enabled` setting (see here)[https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html]
+- Experimental: Use `pip_interop_enabled` setting [see here](https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html)
 
-<!--
-You can use `pip` by installing it in your conda environment.
-
-```sh
-(my-env) [jpduncan@ln002 ~]$ which pip
-~/.conda/envs/my-env/bin/pip
-(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no "--user"
-```
-
-When you install packages using pip installed in a conda env, `conda list` shows PyPI as the source:
-
-```sh
-(my-env) [jpduncan@ln002 ~]$ conda list
-# packages in environment at /global/home/users/jpduncan/.conda/envs/my-env:
-#
-# Name                    Version                   Build  Channel
-# ...
-matplotlib                3.4.3                    pypi_0    pypi
-# ...
-```
--->
 
 ---
 ## Upgrading packages and rolling back conda environment changes
 
 Say you changed your environment (e.g., updated a package) and suddenly your code has errors.
+
+```sh
+(my-env) [jpduncan@ln003 ~]$ conda update samtools # breaks environment!
+```
 
 --
 
@@ -396,7 +379,7 @@ You can also install packages to specific environments or paths without activati
 Like `~/.local`, you can also consider moving `~/.conda` to scratch and symlinking.
 
 ---
-# Removing packages, removing conda environments, and cleaning up
+## Removing packages, removing conda environments, and cleaning up
 
 To remove a specific package in a specific environment:
 
@@ -404,11 +387,15 @@ To remove a specific package in a specific environment:
 [jpduncan@ln003 ~]$ conda remove scipy --name my-env
 ```
 
+--
+
 To remove an entire environment (deactivate first):
 
 ```sh
 [jpduncan@ln003 ~]$ conda remove --name my-env --all
 ```
+
+--
 
 `conda clean` helps remove unused packages and tarballs:
 

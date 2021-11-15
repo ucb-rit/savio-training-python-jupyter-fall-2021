@@ -150,7 +150,9 @@ We'll need to edit this file so that the kernel has access to module and its dep
 We'll add a dictionary called `"env"` with environmental variables to set when starting up the kernel. 
 
 --
-To know what to add in this case, take a look at your environmental variables after you run `module load ml/tensorflow/2.5.0-py37`:
+You'll want to see `env` with environmental variables as they are after you run `module load ml/tensorflow/2.5.0-py37`. To see what it does, run `module show ml/tensorflow/2.5.0-py37`. 
+
+In this case, we'll copy paste these variables to the `env` dictionary:
 
 ```sh
 echo $PATH

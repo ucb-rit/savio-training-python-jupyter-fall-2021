@@ -46,9 +46,15 @@
 
 - Research IT is hiring several [graduate student Domain Consultants](https://docs.google.com/document/d/18-ea-CsRsSVSu8hhFqnPFs-i7RvcG1ObGCW_1olUdJg/edit) for flexible, 10% to 25% (4-10 hours/week) appointments. Email your cover letter and CV to: [research-it@berkeley.edu](mailto:research-it@berkeley.edu)
 
+--
+
 - Our next [Cloud Computing Meetup](https://www.meetup.com/ucberkeley_cloudmeetup/) is on **Thursday, December 9 at 1pm** and focused on **startups using cloud technologies**.
 
+--
+
 - We are looking for researchers working with **sensitive data**. Get in touch for more information: [research-it@berkeley.edu](mailto:research-it@berkeley.edu)
+
+--
 
 - If you have any data or compute questions, please visit us at our weekly office hours on **Wednesdays from 1:30-3pm** and **Thursdays from 9:30-11am**. See https://research-it.berkeley.edu/consulting for Zoom link.
 
@@ -58,15 +64,15 @@
 
 - Python package management on the cluster
 
-  - Pros and cons of pip and conda
-  - Best practices when using virtual environments
+  - Overview and pros/cons of using pip and conda
+  - Best practices when using conda environments
 
 --
 
 - Using Jupyter notebooks via Open OnDemand on Savio
+  - Monitoring and debugging OOD jobs
   - Creating your own Jupyter kernels from a conda env
   - Modifying the kernel to use the module system
-  - Monitoring and debugging OOD jobs
 
 --
 
@@ -418,34 +424,17 @@ First be sure that pip is available already installed in the environment and fol
 
 --
 
-- Experimental: Use `pip_interop_enabled` setting (see here)[https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html]
+- Experimental: Use `pip_interop_enabled` setting [see here](https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html)
 
-<!--
-You can use `pip` by installing it in your conda environment.
-
-```sh
-(my-env) [jpduncan@ln002 ~]$ which pip
-~/.conda/envs/my-env/bin/pip
-(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no "--user"
-```
-
-When you install packages using pip installed in a conda env, `conda list` shows PyPI as the source:
-
-```sh
-(my-env) [jpduncan@ln002 ~]$ conda list
-# packages in environment at /global/home/users/jpduncan/.conda/envs/my-env:
-#
-# Name                    Version                   Build  Channel
-# ...
-matplotlib                3.4.3                    pypi_0    pypi
-# ...
-```
--->
 
 ---
 ## Upgrading packages and rolling back conda environment changes
 
 Say you changed your environment (e.g., updated a package) and suddenly your code has errors.
+
+```sh
+(my-env) [jpduncan@ln003 ~]$ conda update samtools # breaks environment!
+```
 
 --
 
@@ -485,7 +474,7 @@ You can also install packages to specific environments or paths without activati
 Like `~/.local`, you can also consider moving `~/.conda` to scratch and symlinking.
 
 ---
-# Removing packages, removing conda environments, and cleaning up
+## Removing packages, removing conda environments, and cleaning up
 
 To remove a specific package in a specific environment:
 
@@ -493,11 +482,15 @@ To remove a specific package in a specific environment:
 [jpduncan@ln003 ~]$ conda remove scipy --name my-env
 ```
 
+--
+
 To remove an entire environment (deactivate first):
 
 ```sh
 [jpduncan@ln003 ~]$ conda remove --name my-env --all
 ```
+
+--
 
 `conda clean` helps remove unused packages and tarballs:
 
@@ -751,7 +744,9 @@ We'll need to edit this file so that the kernel has access to module and its dep
 We'll add a dictionary called `"env"` with environmental variables to set when starting up the kernel. 
 
 --
-To know what to add in this case, take a look at your environmental variables after you run `module load ml/tensorflow/2.5.0-py37`:
+You'll want to see `env` with environmental variables as they are after you run `module load ml/tensorflow/2.5.0-py37`. To see what it does, run `module show ml/tensorflow/2.5.0-py37`. 
+
+In this case, we'll copy paste these variables to the `env` dictionary:
 
 ```sh
 echo $PATH
