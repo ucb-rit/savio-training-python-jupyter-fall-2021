@@ -1,5 +1,3 @@
-
----
 # Overview of Ray
 Ray provides many tools for parallel computation, including remote functions (tasks) and remote classes (actors).
 
@@ -65,6 +63,13 @@ Compared to Dask, Ray has the advantage of a **shared-memory object store**, whi
 .blue[NOTE]: Ray Data (in beta as of Ray 1.8) allows for interop with Dask collections (such as distributed DataFrames and Bags) by providing a Ray scheduler for Dask (`dask_on_ray`).
 
 .footnote[Source: https://www.anyscale.com/blog/analyzing-memory-management-and-performance-in-dask-on-ray]
+
+---
+# Multi-node Ray
+
+It's also possible to run Ray across nodes using Slurm.
+
+The Ray docs provide examples and helper utilities to create `sbatch` scripts that will set up a multinode Ray cluster via Slurm. See here: https://docs.ray.io/en/latest/cluster/slurm.html
 
 ---
 # Other Ray projects

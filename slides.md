@@ -28,6 +28,11 @@
          .remark-inline-code {
          color: #4c33ff;
          }
+         /* Two-column layouts */
+         .left-column  { width: 49%; float: left; }
+         .right-column { width: 49%; float: right; }
+         .right-column ~ p { clear: both; }
+         .right-column ~ ul { clear: both; }
         </style>
     </head>
     <body>
@@ -39,6 +44,7 @@
 [%- INCLUDE "sections/parallel-jupyter.md" %]
 [%- INCLUDE "sections/parallel-dask.md" %]
 [%- INCLUDE "sections/parallel-ray.md" %]
+[%- INCLUDE "sections/outro.md" %]
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
         </script>

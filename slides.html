@@ -25,12 +25,32 @@
          font-size: 14px;
          max-width: 80%;
          }
+         .remark-inline-code {
+         color: #4c33ff;
+         }
+         /* Two-column layouts */
+         .left-column  { width: 49%; float: left; }
+         .right-column { width: 49%; float: right; }
+         .right-column ~ p { clear: both; }
+         .right-column ~ ul { clear: both; }
         </style>
     </head>
     <body>
         <textarea id="source">class: center, middle
 
 # Using Python & Jupyter Notebooks on Savio
+
+---
+
+# Announcements
+
+- Research IT is hiring several [graduate student Domain Consultants](https://docs.google.com/document/d/18-ea-CsRsSVSu8hhFqnPFs-i7RvcG1ObGCW_1olUdJg/edit) for flexible, 10% to 25% (4-10 hours/week) appointments. Email your cover letter and CV to: [research-it@berkeley.edu](mailto:research-it@berkeley.edu)
+
+- Our next [Cloud Computing Meetup](https://www.meetup.com/ucberkeley_cloudmeetup/) is on **Thursday, December 9 at 1pm** and focused on **startups using cloud technologies**.
+
+- We are looking for researchers working with **sensitive data**. Get in touch for more information: [research-it@berkeley.edu](mailto:research-it@berkeley.edu)
+
+- If you have any data or compute questions, please visit us at our weekly office hours on **Wednesdays from 1:30-3pm** and **Thursdays from 9:30-11am**. See https://research-it.berkeley.edu/consulting for Zoom link.
 
 ---
 
@@ -43,7 +63,7 @@
 
 --
 
-- Using Jupyter notebooks via Open OnDemand
+- Using Jupyter notebooks via Open OnDemand on Savio
   - Creating your own Jupyter kernels from a conda env
   - Modifying the kernel to use the module system
   - Monitoring and debugging OOD jobs
@@ -86,21 +106,17 @@ To see what versions are available on the system:
 
 -------------------- /global/software/sl-7.x86_64/modfiles/langs ---------------------
 python/2.7 python/3.5 python/3.6 python/3.7
-
------------------ /global/home/groups/consultsw/sl-7.x86_64/modfiles -----------------
-python/3.5-consultsw
-
------------- /clusterfs/vector/home/groups/software/sl-7.x86_64/modfiles -------------
-python/2.7.14       python-igraph/0.7.0
+...
 ```
-
 ---
 
-# Don't forget... 
+## Don't forget...
 
 ...to `module load python`.
 
-.red[IMPORTANT:] If you forget you will still have a default version available (but no `pip` or `conda`):
+--
+
+If you forget you will still have a default version available (but no `pip` or `conda`):
 
 ```sh
 [jpduncan@ln002 ~]$ which python
@@ -113,9 +129,13 @@ Python 2.7.5
 /usr/bin/which: no pip in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
 /usr/bin/which: no conda in (/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/global/home/groups/allhands/bin:/global/home/users/jpduncan/bin)
 ```
+
+--
+.red[WARNING:] We strongly caution against using Python 2 which is no longer supported by the Python Software Foundation.
+
 ---
 
-# System Python Packages
+# System default Python packages
 
 Run `conda list` to see what packages are already available.
 
@@ -133,11 +153,21 @@ anaconda-client           1.7.2                    py37_0
 anaconda-navigator        1.9.7                    py37_0
 ```
 
+--
+
 Includes many common packages and their dependencies, such as:
 - **Scientific computing**: numpy, scipy
+--
+
 - **Visualization**: bokeh, seaborn, matplotlib
-- **Parallelization**: dask, ipyparallel
+--
+
+- **Parallel computing**: dask, ipyparallel
+--
+
 - **Data ingest/manipulation**: hdf5, pandas
+--
+
 - **Data science**: pyspark, scikit-learn, statsmodels
 - many more
 
@@ -161,7 +191,9 @@ ml/mxnet/0.9.3-r-3.2.5        ml/tensorflow/2.1.0-py37
 ml/tensorflow/1.0.0-py27      ml/tensorflow/2.3.0-py37
 ml/tensorflow/1.0.0-py35      ml/tensorflow/2.5.0-py37
 ml/tensorflow/1.0.0-py36      ml/torch/torch7
-
+```
+--
+```sh
 [jpduncan@ln002 ~]$ module avail pytorch
 
 ----------------- /global/home/groups/consultsw/sl-7.x86_64/modfiles -----------------
@@ -201,8 +233,8 @@ count: false
 
 - Local project directories
 ```sh
-# -e is for "editable" installs (can also be used with VS
-# if you're familiar with setuptools, this is similar to python setup.py develop
+# -e is for "editable" installs (can also be used with VCS)
+# this is similar to `python setup.py develop`
 pip install --user -e path/to/your/project
 ```
 ---
@@ -236,7 +268,8 @@ pip install --user -r requirements.txt
 --
 
 .red[WARNING:] `conda list` won't show the packages installed via the default
-version of pip that is available after `module load python`.
+version of pip that is available after `module load python`. Use `pip list
+--user` instead.
 
 ---
 # pip default user install directory
@@ -250,37 +283,45 @@ __pycache__		      sklearn
 scikit_learn-1.0.1.dist-info  threadpoolctl-3.0.0.dist-info
 scikit_learn.libs	      threadpoolctl.py
 ```
-
+--
 To avoid taking up too much room in your home directory, you can move this directory to scratch and create a symlink:
 ```sh
 cp -pr ~/.local /global/scratch/users/$USER/.local
 rm -rf ~/.local
 ln -s /global/scratch/users/$USER/.local ~/.local
 ```
+--
+Alternatively, you can change this directory for your session by setting the environmental variable `PYTHONUSERBASE`, or permanently by setting it in `~/.bashrc`.
 
-Alternatively, you can change this directory for your session using the environmental variable `PYTHONUSERBASE`, or permanently by setting it in `~/.bashrc`.
-
-Alternatively, you can use `--target` with `pip install`, but it's more cumbersome.
+<!--Alternatively, you can use `--target` with `pip install`, but it's more cumbersome.-->
 
 ---
-# Uninstalling packages previously installed with pip
+## Uninstalling packages previously installed with pip
 
 ```sh
 # uninstall a single package
 pip uninstall scikit-learn
 
-# uninstall all user packages with specific prefix
-pip freeze --user | grep prefix | xargs pip uninstall -y
-
 # uninstall all user packages
 pip freeze --user | xargs pip uninstall -y
+
+# uninstall all user packages with specific prefix
+pip freeze --user | grep scikit- | xargs pip uninstall -y
 ```
-See https://pip.pypa.io/en/stable/ for more `pip` tricks.
+--
+
+Sadly, `pip uninstall` does not remove package dependencies (but `pip-autoremove` package may help).
+
+--
+
+More info on various pip commands in docs: https://pip.pypa.io/en/stable/
 
 ---
 ## Managing your Python environment with conda
 
-The second package manager available by default when you `module load python` is `conda`. Unlike `pip`, `conda` is also an environment manager.
+The second package manager available by default when you `module load python` is conda. Unlike pip, conda is also an environment manager.
+
+--
 
 Create a conda environment.
 
@@ -288,6 +329,7 @@ Create a conda environment.
 # create an empty conda env called my-env
 [jpduncan@ln003 ~]$ conda create --name my-env
 ```
+--
 This creates a directory `~/.conda/envs/my-env`. Activate it:
 
 ```sh
@@ -297,47 +339,94 @@ This creates a directory `~/.conda/envs/my-env`. Activate it:
 DeprecationWarning: 'source deactivate' is deprecated. Use 'conda deactivate'.
 [jpduncan@ln003 ~]$
 ```
-
-.red[WARNING:] You may be used to using `conda activate` to activate an environment, but this requires you to run `conda init` first which modifies your `.bashrc` in ways that can affect the behavior of your shell more generally on Savio. If you do use `conda init`, be sure to also run `conda config --set auto_activate_base False`.
+--
+.red[WARNING:] You may be used to using `conda activate` to activate an environment, but this requires you to run `conda init` first which we don't recommend on Savio. If you do use `conda init`, we recommend you also run `conda config --set auto_activate_base False`.
 
 ---
 # Installing additional packages with conda
 
-
 `conda` is a bit more restrictive than `pip`. There are two main ways to install packages:
+
+--
 
 - From various conda "channels" such as `default` (https://anaconda.org/), `conda-forge`, `bioconda`, among others.
 
 ```sh
-conda install scipy # using the default channel
+(my-env) [jpduncan@ln003 ~]$ conda install scipy # using the default channel
 
 # -c is short for --channel
-conda install -c bioconda samtools
+(my-env) [jpduncan@ln003 ~]$ conda install -c bioconda samtools
 
 # update scipy using the conda-forge channel
-conda update scipy --channel conda-forge
+(my-env) [jpduncan@ln003 ~]$ conda update scipy --channel conda-forge
 ```
+--
 
-- From an archive (doesn't resolve dependencies):
+- Advanced: You can also install from an archive (e.g., .tar.bz2), but doing so won't resolve the package's dependencies.
 
+--
+
+.red[WARNING]: Be sure to activate a conda environment before using `conda install`, otherwise  conda will try to put the packages in a read-only system location.
+
+---
+# Conda config
+
+You can customize conda's configuration using `conda config`.
+
+- Add `conda-forge` with highest priority for all envs
 ```sh
-# a single package
-conda install /package-path/package-filename.tar.bz2
-# many packages
-conda install /packages-path/packages-filename.tar
+(my-env) [jpduncan@ln003 ~]$ conda config --add channels conda-forge
 ```
+
+--
+- Add `conda-forge`  with lowest priority for all envs:
+```sh
+(my-env) [jpduncan@ln003 ~]$ conda config --append channels conda-forge
+```
+
+--
+- Add `bioconda` with highest priority for a specific env:
+```sh
+(my-env) [jpduncan@ln003 ~]$ conda config --env --add channels bioconda
+```
+
+--
+The first two will add or modify `~/.condarc`, while the third will create `~/.conda/envs/my-env/.condarc`.
 
 ---
 # Using pip within a conda env
 
-.red[WARNING]: This can cause a lot of headaches and generally isn't recommended, so avoid using pip in a conda environment unless you absolutely need to.
+.red[WARNING]: This can cause issues because conda doesn't consider pip-installed packages when installing additional packages. Be careful when using pip in a conda environment.
 
-Note that you can also use `pip` (included by default with Python>=3.4) by installing it in your conda environment.
+--
+
+First be sure that pip is available already installed in the environment and follow these [best practices](https://www.anaconda.com/blog/using-pip-in-a-conda-environment):
+
+- Use pip only after conda
+
+--
+
+- If conda changes are needed after using pip, create new environment
+
+--
+
+- Don't use `--user` when calling `pip install`
+
+--
+
+- Always run pip with `--upgrade-strategy only-if-needed` (the default)
+
+--
+
+- Experimental: Use `pip_interop_enabled` setting (see here)[https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/pip-interoperability.html]
+
+<!--
+You can use `pip` by installing it in your conda environment.
 
 ```sh
 (my-env) [jpduncan@ln002 ~]$ which pip
 ~/.conda/envs/my-env/bin/pip
-(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no --user
+(my-env) [jpduncan@ln002 ~]$ pip install matplotlib # NOTE: no "--user"
 ```
 
 When you install packages using pip installed in a conda env, `conda list` shows PyPI as the source:
@@ -351,18 +440,26 @@ When you install packages using pip installed in a conda env, `conda list` shows
 matplotlib                3.4.3                    pypi_0    pypi
 # ...
 ```
+-->
 
 ---
-# Upgrading packages and rolling back conda environment changes
+## Upgrading packages and rolling back conda environment changes
 
 Say you changed your environment (e.g., updated a package) and suddenly your code has errors.
+
+--
 
 You can roll those changes back as follows:
 
 ```sh
-conda list --revisions # find the last working revision number
-conda install --revision=3 # restore to revision 3
+# find the last working revision number
+(my-env) [jpduncan@ln003 ~]$ conda list --revisions
+# restore to revision 3
+(my-env) [jpduncan@ln003 ~]$ conda install --revision=3
 ```
+
+--
+
 .blue[NOTE]: conda doesn't show revisions for changes made by pip, so they can't be rolled back this way.
 
 ---
@@ -370,6 +467,7 @@ conda install --revision=3 # restore to revision 3
 
 When an environment is active, packages will install in its directory.
 
+--
 You can also install packages to specific environments or paths without activating first:
 
 ```sh
@@ -378,9 +476,11 @@ You can also install packages to specific environments or paths without activati
 
 # create env and install packages at the same time
 [jpduncan@ln003 ~]$ conda create --prefix $SCRATCH/conda/envs/scratch-env scipy
+
 # give full path to env to activate
 [jpduncan@ln003 ~]$ source activate $SCRATCH/conda/envs/scratch-env
 ```
+--
 
 Like `~/.local`, you can also consider moving `~/.conda` to scratch and symlinking.
 
@@ -390,55 +490,107 @@ Like `~/.local`, you can also consider moving `~/.conda` to scratch and symlinki
 To remove a specific package in a specific environment:
 
 ```sh
-conda remove scipy --name my-env
+[jpduncan@ln003 ~]$ conda remove scipy --name my-env
 ```
 
 To remove an entire environment (deactivate first):
 
 ```sh
-conda remove --name my-env --all
+[jpduncan@ln003 ~]$ conda remove --name my-env --all
 ```
 
 `conda clean` helps remove unused packages and tarballs:
 
 ```sh
-conda clean --dry-run --all
+[jpduncan@ln003 ~]$ conda clean --dry-run --all
 ```
 
 ---
+## pip pros and cons
+.green[\+] can use system packages
 
-# pip vs conda
+--
 
-## pip
+.green[\+] new package versions come out on PyPI first
 
-- .green[\+] can use system packages and Python
-- .green[\+] new package versions come out on PyPI first
-- .red[\-] limited to Python versions available on system
-- .red[\-] no automated dependency cleanup (`pip-autoremove` package may help)
+--
 
-## conda
+.green[\+] larger number of packages on PyPI
 
-- .green[\+] environments self-contained, can use any version of Python
-- .green[\+] `conda clean` helps remove unused packages
-- .green[\+] if you make a change that didn't go well, roll back
-- .red[\-] environments can become quite large on disk and/or cause I/O issues
+--
+
+.green[\+] more flexible package installation
+
+--
+
+.green[\+] a bit faster than conda
+
+--
+
+.red[\-] doesn't check for simultaneous compatibility of all dependencies
+
+--
+
+.red[\-] limited to system Python versions
+
+--
+
+.red[\-] no automated dependency cleanup
+
+--
+
+.red[\-] Python packages only
+
+---
+## conda pros and cons
+.green[\+] environments self-contained, can use any version of Python
+
+--
+
+.green[\+] `conda clean` helps remove unused packages
+
+--
+
+.green[\+] if you make a change that didn't go well, roll back
+
+--
+
+.green[\+] not just Python packages
+
+--
+
+.green[\+] ensures that all dependencies are compatible
+
+--
+
+.red[\-] `conda install` tends to be slower than `pip install`
+
+--
+
+.red[\-] environments can become quite large on disk and/or cause I/O issues
+
+--
+
+.red[\-] more limited number of Python packages available
 
 ---
 # Best practices for reproducibility
 
-**pip -- use a requirements.txt**
+**pip** -- use a requirements.txt
 
 ```sh
 pip freeze > requirements.txt
 ```
 
-**conda -- use an environment.yml file**
+--
+**conda** -- use an environment.yml file
 
 ```sh
 conda env export > environment.yml
 ```
 
-**even better -- use a container**
+--
+**even better** -- use a container
 
 See our [training on using containers on Savio](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-help/training-and-tutorials/#savio-introduction-to-containers-on-savio-creating-reproducible-scalable-and-portable-workflows).
 
@@ -447,16 +599,16 @@ See our [training on using containers on Savio](https://docs-research-it.berkele
 - .red[\-] more of a learning curve
 
 ---
-# Overview Open OnDemand
+.center[![Open OnDemand Logo](images/ood-logo.png)]
 
-OOD allows various interactive applications to access the full Savio infrastructure, including:
+Open OnDemand (OOD) allows various interactive applications to access the full Savio infrastructure, including:
 
 - Jupyter Notebooks (our focus)
 - RStudio
 - Matlab
 - VS Code
 
-.center[![Open On Demand on Savio](images/ood.png)]
+For more info on the OOD project: https://openondemand.org/
 
 ---
 # Jupyter Notebooks overview
@@ -468,6 +620,60 @@ A Jupyter Notebook can serve as a reproducible record for your analysis.
 
 Let's take a quick look at Jupyter on OOD now: https://ood.brc.berkeley.edu
 
+.center[![Open On Demand on Savio](images/ood.png)]
+
+---
+## Using Jupyter on Savio partitions via Slurm
+
+Select appropriate Slurm flags:
+
+.center[![Slurm config for Jupyter server](images/jupyter-slurm.png)]
+
+---
+## Connect to Jupyter 
+
+.center[![Interactive sessions](images/my-interactive-sessions.png)]
+
+Clicking on the **Session ID** will take you to the a directory with scripts and logs for the session at `~/ondemand/data/sys/dashboard/batch_connect/sys/brc_jupyter-compute/output/<SESSIONID>`. 
+
+---
+## The Jupyter file tree
+
+.center[![Jupyter file tree](images/jupyter-tree.png)]
+
+You can switch to Jupyter Lab by replacing everything from `/tree` with `/lab` in the URL.
+
+---
+## Selecting and changing the notebook kernel
+
+.left-column[![New Jupyter notebook](images/new-notebook.png)]
+
+--
+
+.right-column[![Change notebook kernel](images/change-kernel.png)]
+
+---
+## Some OOD troubleshooting tips
+
+- If you're having trouble getting the Slurm flags right when starting an OOD session, try running an analogous [interactive job](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/submitting-jobs/#interactive-jobs) from the command line.
+
+--
+
+- If running via Slurm, you can see the status of your job with `squeue -u $USER` (or `sq`) as with a usual Slurm job.
+```sh
+[jpduncan@ln001 ~]$ squeue -u $USER
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+10080336    savio2 OOD_batc jpduncan  R      54:45      1 n0090.savio2
+```
+
+--
+
+- If you see that OOD is repeatedly giving you an authentication window, you need to **close any other browser tabs using OOD**, or go back to your previous tab.
+
+--
+
+- Compute on shared Jupyter node for debugging/exploration is limited to **1 core** and **2 GB memory**.
+
 ---
 # Jupyter kernels
 
@@ -475,11 +681,15 @@ Every Jupyter Notebook uses a kernel, which provides programming language
 support. In particular, the default IPython kernel allows Jupyter Notebooks to
 run Python.
 
+--
+
 On Savio we have a number of Jupyter kernels available by default:
 
 - Python 2.7, 3.6, 3.7
 - TensorFlow kernels
 - pyspark
+
+--
 
 See here for a list of kernels for other programming languages that may work on
 Savio: https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
@@ -488,8 +698,12 @@ Savio: https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 # Making your own Jupyter kernel
 
 If the default kernels don't meet your needs, you can create your own. There are
-various methods, but a straightforward one is to use an environment. We could
-use conda to create an environment which we then convert to an ipykernel:
+various methods, but a straightforward one is to use an environment. 
+
+--
+
+We could use conda to create an environment which we then convert to an
+ipykernel:
 
 ```sh
 module load python
@@ -498,6 +712,8 @@ source activate py39
 python -m ipykernel install --user --name=py39 --display-name="Python 3.9"
 source deactivate
 ```
+
+--
 
 .blue[NOTE]: If you don't need a different version of Python from what the system provides, then using a `virtualenv` may take less space on disk than a conda environment.
 
@@ -510,6 +726,9 @@ Say we want to create an kernel that uses the `ml/tensorflow/2.5.0-py37` module.
 module load ml/tensorflow/2.5.0-py37
 python -m ipykernel install --user --name=tf25 --display-name="Python3.7 TF2.5.0"
 ```
+
+--
+
 This creates `~/.local/jupyter/kernels/tf25/kernel.json`:
 
 ```json
@@ -528,13 +747,20 @@ This creates `~/.local/jupyter/kernels/tf25/kernel.json`:
 We'll need to edit this file so that the kernel has access to module and its dependencies.
 
 ---
-We'll add a dictionary called `"env"` with environmental variables to set when starting up the kernel. To know what to add in this case, take a look at your environmental variables after you run `module load ml/tensorflow/2.5.0-py37`:
+
+We'll add a dictionary called `"env"` with environmental variables to set when starting up the kernel. 
+
+--
+To know what to add in this case, take a look at your environmental variables after you run `module load ml/tensorflow/2.5.0-py37`:
 
 ```sh
 echo $PATH
 echo $LD_LIBRARY_PATH
 echo $PYTHONPATH
 ```
+
+--
+
 In my case, the final `kernel.json` looks like this:
 ```json
 {
@@ -557,23 +783,26 @@ In my case, the final `kernel.json` looks like this:
 ---
 
 Now I can use my new TensorFlow kernel on a GPU node.
- 
+
 .center[![Jupyter with TensorFlow kernel](images/jupyter-tf.png)]
 
 ---
 # Basic parallelization using ipyparallel
 
-We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine (discussed here) or across multiple machines (see the tutorial on distributed memory parallelization). 
+We'll start by using the IPython parallel package (`ipyparallel`), which allows one to parallelize on a single machine or across multiple machines.
 
 `ipyparallel` allows one to easily split up tasks that can be computed independently and send those tasks out to Python worker processes to run in parallel. The results are then collected back on the main Python process.
 
 Since the workers are separate Python processes, we need to start up those processes, either from within Python (possible as of version 7 of ipyparallel) or from the command line.
+
+---
 
 # Starting workers on one node
 
 ```
 ## In newer versions of ipyparallel (v. 7 and later)
 import ipyparallel as ipp
+ipp.__version__
 cluster = ipp.Cluster(n=4)
 cluster.start_cluster_sync()
 ```
@@ -593,10 +822,12 @@ ipcluster start -n 4
 
 ```
 # in python
-import ipyparallel
+import ipyparallel as ipp
 c = ipp.Client()
 c.ids
 ```
+
+---
 
 # Testing our cluster
 
@@ -604,11 +835,15 @@ Let's just verify that things seem set up ok and we can interact with all our wo
 
 ```
 dview = c[:]
-dview.block = True
+dview
+## Set blocking so that we wait for the result of the parallel execution
+dview.block = True 
 dview.apply(lambda : "Hello, World")
 ```
 
-`dview` stands for a 'direct view', which is an interface to our cluster that allows us to "manually" send tasks to the workers.
+`dview` stands for a 'direct view', which is an interface to our cluster that allows us to 'manually' send tasks to the workers.
+
+---
 
 # Parallelized machine learning example
 
@@ -639,6 +874,8 @@ mydict = dict(X = X, Y = Y, looFit = looFit)
 dview.push(mydict)
 ```
 
+---
+
 # Parallelized machine learning example (2)
 
 Now let's set up a "load-balanced view". With this type of interface, one submits the tasks and the controller decides how to divide up the tasks, ideally achieving good load balancing. A load-balanced computation is one that keeps all the workers busy throughout the computation
@@ -657,13 +894,12 @@ def wrapper(i):
 # Now run the fitting, predicting on each held-out observation:
 
 import time
-time.time()
 pred = lview.map(wrapper, range(nSub))
-time.time()
 
 pred
 ```
 
+---
 
 # Using multiple nodes
 
@@ -685,21 +921,19 @@ sleep 45  # wait until all engines have successfully started
 ```
 
 At this point you should be able to connect to the running cluster using the syntax seen for single-node usage.
+
+.blue[WARNING:] Be careful to set the sleep period long enough that the controller starts before trying to start the workers and the workers start before trying to connect to the workers from within Python.
+
+---
 # Using ipyparallel in a Jupyter notebook
 
-We have some [directions](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/ood/jupyter-parallelization/) on parallelization within a notebook. 
+As of our recent upgrade to version 7 of the ipyparallel package, you can start the ipyparallel workers from within Python and therefore from within your notebook. This is the same as we just saw in our basic Python session.
 
-This uses the `ipyparallel` package that we explored from within a simple Python command line session. 
+Previously, one needed to either start the workers via the "IPython Clusters" tab of the Jupyter interface or start the workers using `ipcluster start` from a terminal session and then connecting to them from the notebook.
 
-Once we've done the one-time setup, we can go to the 'IPython Clusters' tab and choose the number of workers. These workers will start on the single node our notebook is running on. 
+As before, the number of workers should generally match the number of cores you requested (e.g., on `savio2_htc`) or (ideally) the number of cores on the machine (for partitions allocated on a per node basis).
 
-So the number of workers would generally match the number of cores you requested (e.g., on `savio2_htc`) or (ideally) the number of cores on the machine (for partitions allocated on a per node basis).
-
-**Caution**: use of the standalone OOD node (for debugging/exploration) is limited to 1 core and 2 GB memory, so that is not appropriate for parallelization, or even for working with moderately sized datasets. I've noticed that reading in a large file may cause the kernel to die without any warnings/error messages. For example this occurs for a 260 MB CSV file, even though in principle the notebook can use up to 2 GB memory...
-
-# Within the notebook
-
-We need to connect to the running cluster. 'c' gives us a "handle" object.
+If you've started the workers outside of Python, you need to connect to the running cluster. As before with the ipyparallel examples, 'c' gives us a 'handle' object.
 
 ```
 import ipyparallel as ipp
@@ -707,11 +941,11 @@ c = ipp.Client(profile='default', cluster_id='')
 c.ids # this should show the number of workers equal to the number you requeste
 ```
 
-Now we can run our random forest cross-validation. See `randomForest_cv.py`.
-
 # Multiple nodes
 
 This may be possible. Feel free to ask us and we can explore it further. 
+
+---
 # Dask overview
 
 Python's Dask package provides powerful tools for parallelizing computations on a single machine or across multiple machines.
@@ -720,20 +954,26 @@ In addition to providing tools that allow you to parallelize independent computa
 
 There's lots of information about Dask online, including [this tutorial](https://github.com/berkeley-scf/tutorial-dask-future) prepared by Chris Paciorek.
 
+---
+
 # Distributed data in Dask
 
-The idea here is to split up large datasets into chunks (also called 'partitions' or 'shard') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
+The idea here is to split up large datasets into chunks (also called 'partitions' or 'shards') and operate in parallel on those chunks. This generally assumes that / works best when the operations can be done independently on the chunks and limited information needs be communicated between chunks.
 
 Some advantages of this are:
 
  - increasing speed by using multiple cores to process the data.
  - when using multiple nodes, increasing the amount of total memory that can be used by having the data split across the nodes.
  
- Some of the key types of distributed data objects in Dask are:
+# Dask's distributed data types
+
+Some of the key types of distributed data objects in Dask are:
  
   - distributed dataframes - each chunk is a Pandas dataframe
   - distributed arrays - each subset of the array is a Numpy array
   - bags - distributed lists, where each chunk contains some of the elements
+  
+---
   
 # Dask's 'schedulers'
 
@@ -746,7 +986,7 @@ Dask can set up the parallel workers in a variety of ways, which are called sche
 |processes|background Python sessions|no|yes|
 |distributed|Python sessions across multiple nodes|yes or no|yes|
 
-Note that because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
+.blue[NOTE:] Because of Python's Global Interpreter Lock (GIL), many computations done in pure Python code won't be parallelized using the 'threaded' scheduler; however computations on numeric data in numpy arrays, Pandas dataframes and other C/C++/Cython-based code will parallelize.
 
 Here's an example of setting the 'processes' scheduler for a computation:
 
@@ -755,6 +995,8 @@ import dask.multiprocessing
 # spread work across multiple cores, one worker per core
 dask.config.set(scheduler='processes', num_workers = 4)  
 ```
+
+---
 
 # Dask bag example - context
 
@@ -768,7 +1010,9 @@ Let's get a sense for the data first:
 gzip -cd /global/scratch/users/paciorek/wikistats_small/dated/part-00000.gz | head -n 5
 ```
 
-The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language.
+The data are the number of visits to a given Wikipedia page on a given hour of a given day, in a given language. The fields are {day, hour, language, page, num_visits, page_size}.
+
+---
 
 # Dask bag example - initial processing
 
@@ -783,10 +1027,7 @@ wiki
 
 # Count the number of elements
 
-import time
-t0 = time.time()
 wiki.count().compute()
-time.time() - t0
 
 import re
 def find(line, regex = "Obama", language = "en"):
@@ -821,7 +1062,7 @@ total_cnt
 obama[0:5]
 ```
 
-
+---
 
 # Extending the example
 
@@ -838,10 +1079,10 @@ dtypes = {'date': 'object', 'time': 'object', 'language': 'object',
 
 # df is a Dask dataframe
 df = obama.map(make_tuple).to_dataframe(dtypes)
-stats = df.groupby(['date','time']).hits.sum().compute()
+obama_stats = df.groupby(['date','time']).hits.sum().compute()
 
-# stats is a Pandas object
-stats.to_csv('obama_stats.csv')
+# 'obama_stats' is a Pandas object
+obama_stats.to_csv('obama_stats.csv')
 ```
 
 ---
@@ -912,6 +1153,13 @@ Compared to Dask, Ray has the advantage of a **shared-memory object store**, whi
 .footnote[Source: https://www.anyscale.com/blog/analyzing-memory-management-and-performance-in-dask-on-ray]
 
 ---
+# Multi-node Ray
+
+It's also possible to run Ray across nodes using Slurm.
+
+The Ray docs provide examples and helper utilities to create `sbatch` scripts that will set up a multinode Ray cluster via Slurm. See here: https://docs.ray.io/en/latest/cluster/slurm.html
+
+---
 # Other Ray projects
 
 There are additional Ray libraries in various stages of development that could be worth checking out:
@@ -925,6 +1173,21 @@ There are additional Ray libraries in various stages of development that could b
 - [Workflows](https://docs.ray.io/en/latest/workflows/concepts.html): Adds durability to Ray dynamic task graphs, appropriate for large-scale ML pipelines or long-running applications.
 
 ---
+# Getting help
+
+- **Weekly office hours**: Wednesdays from 1:30-3pm and Thursdays from 9:30-11am (see https://research-it.berkeley.edu/consulting for Zoom link)
+
+- **Past trainings**: https://tinyurl.com/savio-trainings
+
+- **FAQs**: https://tinyurl.com/savio-faqs
+
+- **Savio ticketing system**: email us at brc-hpc-help@berkeley.edu
+
+---
+
+class: center, middle
+
+# Thanks!
 
         </textarea>
         <script src="https://remarkjs.com/downloads/remark-latest.min.js">
